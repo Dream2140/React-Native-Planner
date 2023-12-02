@@ -1,0 +1,29 @@
+{
+  "extends": "@tsconfig/react-native/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": [
+        "src/components/*",
+      ],
+      "@constants/*": [
+        "src/constants/*",
+      ],
+      "@assets/*": [
+        "assets/*",
+      ]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "src/custom.d.ts",
+    "assets/**/*",
+  ],
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ]
+}
