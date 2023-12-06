@@ -1,6 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { TABS_ROUTES } from "./routes";
+import { Routes } from "./routes";
 import {
   BarGenerate,
   BarGenerateActive,
@@ -10,16 +10,20 @@ import {
   BarMyTasksActive
 } from "@constants/icons-svg";
 import { COLORS } from "@constants/theme";
+import { TaskListScreen } from "../pages/taskListScreen";
+import MapPage from "../pages/mapScreen/MapPage";
+import { Chart } from "../pages/Chart";
 
 const Tab = createBottomTabNavigator();
+
 const TabRouter = () => {
   return (
     <Tab.Navigator
       screenOptions={{ headerShown: false, tabBarActiveTintColor: COLORS.primaryViolent }}
     >
       <Tab.Screen
-        name={TABS_ROUTES.tasks.name}
-        component={TABS_ROUTES.tasks.component}
+        name={Routes.TASKS_LIST}
+        component={TaskListScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             focused ? <BarMyTasksActive /> : <BarMyTasks />
@@ -27,19 +31,19 @@ const TabRouter = () => {
         }}
       />
       <Tab.Screen
-        name={TABS_ROUTES.map.name}
-        component={TABS_ROUTES.map.component}
+        name={Routes.MAP}
+        component={MapPage}
         options={{
-          tabBarIcon: ({ focused, color, size }) => (
+          tabBarIcon: ({ focused }) => (
             focused ? <BarMapActive /> : <BarMap />
           )
         }}
       />
       <Tab.Screen
-        name={TABS_ROUTES.generator.name}
-        component={TABS_ROUTES.generator.component}
+        name={Routes.CHARTS}
+        component={Chart}
         options={{
-          tabBarIcon: ({ focused, color, size }) => (
+          tabBarIcon: ({ focused }) => (
             focused ? <BarGenerateActive /> : <BarGenerate />
           )
         }}

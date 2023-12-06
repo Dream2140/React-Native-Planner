@@ -1,6 +1,7 @@
 import firestore from "@react-native-firebase/firestore";
-import { TasksPriorityColor } from "@constants/TasksPriorityColor";
-import { TaskModel } from "../models/task.model";
+
+import { TaskModel } from "@models/task.model";
+import { FilterType } from "../types/filterType";
 
 interface LoadTasksResponse {
   tasks: TaskModel[];
@@ -25,21 +26,24 @@ class TaskService {
     }
   }
 
-  async getTasksByUserId(userId: string, pageSize: number, startAfter?: string | null): Promise<LoadTasksResponse> {
+  async getTaskListWithParams(userId: string, filter: FilterType, pageSize: number, startAfter?: string | null): Promise<LoadTasksResponse> {
     try {
-      console.log(startAfter, pageSize);
+
       let query = this.collectionRef
         .where("user_id", "==", userId)
         .orderBy("created_at", "desc")
         .limit(pageSize);
 
+      if (filter !== 'All') {
+        const doneValue = filter === 'Completed';
+        query = query.where('done', '==', doneValue);
+      }
 
       if (startAfter) {
         query = query.startAfter(startAfter);
       }
 
       const snapshot = await query.get();
-
       const tasks: TaskModel[] = [];
 
       snapshot.forEach((doc) => {
@@ -66,7 +70,7 @@ class TaskService {
     }
   }
 
-  async editTaskById(taskId: string, updatedTask: Partial<TaskModel>): Promise<TaskModel> {
+  async editTaskById(taskId: string, updatedTask: TaskModel): Promise<TaskModel> {
     try {
       await this.collectionRef.doc(taskId).update(updatedTask);
       const updatedDoc = await this.collectionRef.doc(taskId).get();

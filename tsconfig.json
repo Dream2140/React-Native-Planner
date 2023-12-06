@@ -7,8 +7,23 @@
       "@components/*": [
         "src/components/*",
       ],
+      "@hooks/*": [
+        "src/hooks/*",
+      ],
+      "@router/*": [
+        "src/router/*",
+      ],
       "@constants/*": [
         "src/constants/*",
+      ],
+      "@services/*": [
+        "src/services/*",
+      ],
+      "@store/*": [
+        "src/store/*",
+      ],
+      "@models/*": [
+        "src/models/*",
       ],
       "@assets/*": [
         "assets/*",

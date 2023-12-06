@@ -1,18 +1,30 @@
-import Router from "./router/Router";
-import { Platform, StatusBar, View } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { COLORS } from "@constants/theme";
 import { Provider } from "react-redux";
-import { persistor, store } from "./store/store";
-import { PersistGate } from 'redux-persist/integration/react';
+import FlashMessage from "react-native-flash-message";
+import { Platform, StatusBar, View } from "react-native";
+import { PersistGate } from "redux-persist/integration/react";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+
+import InternetCheck from "@components/InternetCheck/InternetCheck";
+import { persistor, store } from "@store/store";
+import { COLORS } from "@constants/theme";
+import Router from "./router/Router";
+
 export default function App() {
   const Application = () => (
-
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <Router />
-      </PersistGate>
-    </Provider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <InternetCheck>
+        <BottomSheetModalProvider>
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <Router />
+              <FlashMessage position="top" />
+            </PersistGate>
+          </Provider>
+        </BottomSheetModalProvider>
+      </InternetCheck>
+    </GestureHandlerRootView>
   );
 
   if (Platform.OS == "ios") {

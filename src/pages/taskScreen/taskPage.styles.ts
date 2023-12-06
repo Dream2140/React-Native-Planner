@@ -4,13 +4,13 @@ import { BORDER_RADIUS, COLORS, FONT_SIZE, FONTS } from "@constants/theme";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgGray,
+    backgroundColor: COLORS.bgGray
 
 
   },
   taskContainer: {
     flex: 1,
-    justifyContent: 'space-between'
+    justifyContent: "space-between"
   },
   imageContainer: {
     marginTop: 9
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: 26,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "center"
 
   },
   headerTitle: {
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 50,
     justifyContent: "center",
-    alignItems: 'center'
+    alignItems: "center"
   },
   taskNameContainer: {
     marginHorizontal: 15
@@ -125,20 +125,23 @@ const styles = StyleSheet.create({
   },
   locationContainer: {
     marginHorizontal: 15,
-    flexDirection: "row",
     alignContent: "center"
-  },
-  locationCheckbox: {
-    marginRight: 8,
-    width: 16,
-    height: 16,
-    borderColor: COLORS.bgLightGray
   },
   locationTitle: {
     color: COLORS.darkBlue,
+    fontFamily: FONTS.sansProRegular,
+    fontSize: FONT_SIZE.normal,
+    marginVertical: 5
+  },
+  locationBtn: {
+    width: 110,
+    height: 36
+  },
+  locationBtnText: {
     fontFamily: FONTS.sansProBold,
-    fontWeight: "700",
-    fontSize: FONT_SIZE.normal
+    fontSize: FONT_SIZE.small,
+    color: COLORS.textTitleText,
+    fontWeight: "700"
   }
 });
 

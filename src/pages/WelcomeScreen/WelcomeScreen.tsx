@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, KeyboardAvoidingView, Platform, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
+import { useDispatch } from "react-redux";
+import { setUserInfo } from "@store/reducers/userSlice";
+
+import useGoogleSignIn from "../../hooks/useGoogleSignIn";
 import styles from "./welcomeScreen.styles";
 import Input from "@components/Input/Input";
 import { appLogo } from "@constants/icons";
-import useGoogleSignIn from "../../hooks/useGoogleSignIn";
-import { useNavigation } from "@react-navigation/native";
-import { Routes } from "../../router/routes";
 import Button from "@components/Button/Button";
 import auth from "@react-native-firebase/auth";
 import { COLORS } from "@constants/theme";
-import { useDispatch } from "react-redux";
-import { setUserInfo } from "../../store/reducers/userSlice";
 
 
 const WelcomeScreen = () => {
@@ -25,7 +24,6 @@ const WelcomeScreen = () => {
 
   const { signInWithGoogle, loading: googleSignInLoading, error: googleSignInError, userInfo } = useGoogleSignIn();
 
-  const navigator = useNavigation();
   const dispatch = useDispatch();
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -53,7 +51,6 @@ const WelcomeScreen = () => {
   useEffect(() => {
     if (userInfo) {
       dispatch(setUserInfo(userInfo.user));
-      navigator.navigate(Routes.TASKS_LIST as never);
     }
   }, [userInfo]);
 
@@ -75,7 +72,6 @@ const WelcomeScreen = () => {
       };
 
       dispatch(setUserInfo(userData));
-      navigator.navigate(Routes.TASKS_LIST as never);
 
     } catch (e: any) {
       console.error("Login failed:", e.message);
@@ -92,8 +88,7 @@ const WelcomeScreen = () => {
       setLoading(true);
       const response = await auth().createUserWithEmailAndPassword(email, password);
       console.log("User registered:", response.user);
-
-      navigator.navigate(Routes.TASKS_LIST as never);
+      dispatch(setUserInfo({ email: response.user.email as string, id: response.user.uid }));
     } catch (e: any) {
       console.error("Registration failed:", e.message);
       setError(e.message);

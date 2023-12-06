@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
 import auth from "@react-native-firebase/auth";
-import { NavigationProp, RouteProp } from "@react-navigation/native";
 
 type AuthSuccess = {
   // @ts-ignore

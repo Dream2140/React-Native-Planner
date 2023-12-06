@@ -1,87 +1,98 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import React, { useCallback, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { ActivityIndicator, Animated, FlatList, PanResponder, Text, View } from "react-native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+
 import { Toolbar } from "@components/toolbar";
+import { Filters } from "./Filters";
+import { TaskItem, TaskItemProps } from "@components/taskItem/TaskItem";
+import Button from "@components/Button/Button";
+import { Routes } from "@router/routes";
+import {
+  resetTaskState, setFilter
+} from "@store/reducers/tasksReducer/taskSlice";
+import { AppDispatch } from "@store/store";
+import {
+  selectActiveFilter,
+  selectHasNextPage,
+  selectLoading,
+  selectTaskCount,
+  selectTasks
+} from "@store/reducers/tasksReducer/selectors";
+import { getTaskCountForUserAsync, getTaskListWithParamsAsync } from "@store/reducers/tasksReducer/thunks";
+import { selectUserInfo } from "@store/reducers/userSlice";
+import { FilterType } from "../../types/filterType";
+import { TASK_FILTERS } from "@constants/filters";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "@router/router.types";
 
 import styles from "./taskListScreen.styles";
-import { Tabs } from "./Tabs";
-import { TaskItem } from "@components/taskItem/TaskItem";
-import { mockTasks } from "../../mock/taskListData";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import Button from "@components/Button/Button";
-import firestore from "@react-native-firebase/firestore";
-import { Routes } from "../../router/routes";
-import TaskService from "../../services/task.service";
-import { TaskModel } from "../../models/task.model";
-import { useSelector } from "react-redux";
-import { selectUserInfo } from "../../store/reducers/userSlice";
 
-const TABS = ["Active", "Completed", "All"];
-
-const COUNT_TASKS = 8;
+const COUNT_OF_TASKS = 8;
 
 export const TaskListScreen = () => {
-  const [activeTab, setActiveTab] = useState("Active");
-  const [tasks, setTasks] = useState<TaskModel[]>();
+
+  const tasks = useSelector(selectTasks);
   const userInfo = useSelector(selectUserInfo);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [taskCount, setTaskCount] = useState<number>(0);
-  const [lastVisible, setLastVisible] = useState<string | null>(null);
-  const [hasNextPage, setHasNextPage] = useState<boolean>(true);
+  const hasNextPage = useSelector(selectHasNextPage);
+  const loading = useSelector(selectLoading);
+  const taskCount = useSelector(selectTaskCount);
+  const filter = useSelector(selectActiveFilter);
 
-  const navigation = useNavigation();
-  const fetchTasks = async () => {
-    setLoading(true);
-    try {
-      if (!userInfo || !hasNextPage) return;
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const dispatch = useDispatch<AppDispatch>();
 
-      const loadedTasks = await TaskService.getTasksByUserId(userInfo.id, COUNT_TASKS, lastVisible);
+  const translateX = useRef(new Animated.Value(0)).current;
 
-      if (tasks && tasks.length > 0) {
-        setTasks([...tasks, ...loadedTasks.tasks]);
-      } else {
-        setTasks(loadedTasks.tasks);
+  const swipeListHandler = PanResponder.create({
+    onStartShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dx) > Math.abs(gestureState.dy),
+    onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dx) > Math.abs(gestureState.dy),
+    onPanResponderMove: Animated.event([null, { dx: translateX }], { useNativeDriver: false }),
+    onPanResponderRelease: (_, gestureState) => {
+      const newFilterIndex = gestureState.dx > 0 ? -1 : 1;
+      const currentIndex = TASK_FILTERS.indexOf(filter);
+
+      if ((newFilterIndex === -1 && currentIndex === 0) || (newFilterIndex === 1 && currentIndex === TASK_FILTERS.length - 1)) {
+        Animated.timing(translateX, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: false
+        }).start();
+        return;
       }
-      setHasNextPage(loadedTasks.hasNextPage);
-      setLastVisible(loadedTasks.tasks.length > 0 ? loadedTasks.tasks[loadedTasks.tasks.length - 1].created_at : null);
-    } catch (error) {
-      console.error("Error fetching tasks: ", error);
-    } finally {
-      setLoading(false);
+
+      const nextIndex = (currentIndex + newFilterIndex + TASK_FILTERS.length) % TASK_FILTERS.length;
+      const nextFilter = TASK_FILTERS[nextIndex];
+
+      Animated.timing(translateX, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: false
+      }).start(() => {
+        dispatch(setFilter(nextFilter));
+      });
     }
+  });
+
+  const fetchTasks = () => {
+    if (!hasNextPage || loading) return;
+    dispatch(getTaskListWithParamsAsync(COUNT_OF_TASKS));
   };
 
-  const getTasksCount = async ()=>{
-    if (!userInfo) return;
-    const response = await TaskService.getTaskCountForUser(userInfo?.id );
-    console.log(response);
-    setTaskCount(response);
-  }
+  const handleTabChange = (activeFilter: FilterType) => {
+    dispatch(setFilter(activeFilter));
+  };
 
+  useEffect(() => {
+    dispatch(getTaskCountForUserAsync(userInfo?.id as string));
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      fetchTasks();
-      getTasksCount();
-    }, [userInfo])
+      dispatch(resetTaskState());
+      dispatch(getTaskListWithParamsAsync(COUNT_OF_TASKS));
+    }, [filter])
   );
-
-  const filterTasks = (activeTab: String) => {
-    if (!tasks) return;
-
-    switch (activeTab) {
-      case "Active":
-        return tasks.filter(task => !task.done);
-      case "Completed":
-        return tasks.filter(task => task.done);
-      default:
-        return tasks;
-    }
-  };
-
-  const filteredTasks = filterTasks(activeTab);
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-  };
 
   return (
     <View style={styles.container}>
@@ -97,24 +108,26 @@ export const TaskListScreen = () => {
           <Text style={styles.titleText}>You have{"\n"}{taskCount} tasks here</Text>
         </View>
       </Toolbar>
-      <View style={styles.tabsContainer}>
-        <Tabs activeTab={activeTab} tabs={TABS} onTabChange={handleTabChange} />
-      </View>
-      <View style={styles.taskListContainer}>
-        <Text style={styles.taskListTitle}>Your Tasks</Text>
-        <View style={styles.taskList}>
-          <FlatList
-            data={filteredTasks}
-            onRefresh={() => fetchTasks()}
-            refreshing={loading}
-            keyExtractor={(item) => item.created_at}
-            renderItem={({ item }) => <TaskItem {...item} />}
-            onEndReached={fetchTasks}
-            onEndReachedThreshold={0.1}
-            ListFooterComponent={() => (loading ? <ActivityIndicator size="large" /> : null)}
-          />
+      <Animated.View style={styles.swipeContainer}   {...swipeListHandler.panHandlers}>
+        <View style={styles.tabsContainer}>
+          <Filters activeTab={filter} tabs={TASK_FILTERS} onTabChange={handleTabChange} />
         </View>
-      </View>
+        <View style={styles.taskListContainer}>
+          <Text style={styles.taskListTitle}>Your Tasks</Text>
+          <View>
+            {tasks.length === 0 ?
+              (<Text> No {filter === "Active" && "active"} tasks yet</Text>)
+              : (<FlatList
+                data={tasks}
+                keyExtractor={(item) => item.created_at}
+                renderItem={({ item }) => <TaskItem {...item as TaskItemProps} />}
+                onEndReached={fetchTasks}
+                onEndReachedThreshold={0.1}
+                ListFooterComponent={() => (loading ? <ActivityIndicator size="large" /> : null)}
+              />)}
+          </View>
+        </View>
+      </Animated.View>
     </View>
   );
 };

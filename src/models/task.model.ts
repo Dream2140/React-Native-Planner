@@ -1,12 +1,14 @@
-import { TasksPriorityColor } from "@constants/TasksPriorityColor";
+
+import { LocationType } from "../types/taskTypes";
+import { TaskPriorityTypes } from "@constants/TasksPriorityColor";
 
 export interface TaskModel {
   created_at: string;
   image_url: string;
-  location: boolean;
+  location: LocationType | null;
   title: string;
   done: boolean;
-  type: keyof typeof TasksPriorityColor;
+  type: TaskPriorityTypes;
   user_id: string;
   id?: string;
 }

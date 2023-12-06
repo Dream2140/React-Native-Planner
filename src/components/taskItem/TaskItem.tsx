@@ -1,66 +1,58 @@
-import React, { useState } from "react";
+import React from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
-import styles from "./taskItem.styles";
-import { DeleteIcon, EditIcon, LocationIcon } from "@constants/icons-svg";
 import Checkbox from "expo-checkbox";
-import { COLORS } from "@constants/theme";
-import { TaskType } from "../../types/taskType";
-import { TaskModel } from "../../models/task.model";
-import { TasksPriorityColor } from "@constants/TasksPriorityColor";
-import TaskService from "../../services/task.service";
 import { useNavigation } from "@react-navigation/native";
-import { Routes } from "../../router/routes";
+import { showMessage } from "react-native-flash-message";
+import { useDispatch } from "react-redux";
 
-interface TaskItemProps extends TaskModel {
+import { DeleteIcon, EditIcon, LocationIcon } from "@constants/icons-svg";
+import { COLORS } from "@constants/theme";
+import { TaskModel } from "@models/task.model";
+import { Routes } from "@router/routes";
+import { deleteTaskByIdAsync, editTaskAsync } from "@store/reducers/tasksReducer/thunks";
+import { AppDispatch } from "@store/store";
+import styles from "./taskItem.styles";
+import { taskPriorityColors } from "@constants/TasksPriorityColor";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "@router/router.types";
+
+export interface TaskItemProps extends TaskModel {
   id: string;
 }
 
 export const TaskItem: React.FC<TaskItemProps> = (task) => {
 
-  const [checkBoxValue, setCheckBoxValue] = useState<boolean>(task.done);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const navigation = useNavigation();
+  const isCompleted = task.done;
 
-  const handleTaskDoneStatus = async (status: boolean) => {
-      Alert.alert(
-        'Task Update',
-        'Do you want to mark this task as done?',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'OK',
-            onPress: async () => {
-              const updatedTask = await TaskService.editTaskById(task.id, { done: status });
+  const handleTaskDoneStatus = async () => {
+    dispatch(editTaskAsync({ taskId: task.id, updatedTask: { ...task, done: !task.done } }));
 
-              if (updatedTask) {
-                setCheckBoxValue(prevState => !prevState);
-              }
-            },
-          },
-        ],
-        { cancelable: false }
-      );
+    showMessage({
+      message: `Done status of "${task.title}" changed`,
+      icon: "auto",
+      type: "success"
+    });
   };
 
 
   const handleDeleteTask = async () => {
     Alert.alert(
-      'Delete task',
-      'Do you want to delete this task?',
+      "Delete task",
+      "Do you want to delete this task?",
       [
         {
-          text: 'Cancel',
-          style: 'cancel',
+          text: "Cancel",
+          style: "cancel"
         },
         {
-          text: 'OK',
-          onPress: async () => {
-            await TaskService.deleteTaskById(task.id);
-          },
-        },
+          text: "OK",
+          onPress: () => {
+            dispatch(deleteTaskByIdAsync(task.id));
+          }
+        }
       ],
       { cancelable: false }
     );
@@ -73,30 +65,37 @@ export const TaskItem: React.FC<TaskItemProps> = (task) => {
   return (
     <View style={styles.container}>
       <View style={styles.leftControls}>
-        <View style={[styles.marker, { backgroundColor: TasksPriorityColor[task.type] }]}></View>
+        <View style={[styles.marker, { backgroundColor: taskPriorityColors[task.type] }]}></View>
         <View style={styles.checkBoxContainer}>
           <Checkbox
-            color={checkBoxValue ? COLORS.primaryViolent : undefined}
+            color={task.done ? COLORS.primaryViolent : undefined}
             style={styles.checkbox}
-            value={checkBoxValue}
+            value={task.done}
             onValueChange={handleTaskDoneStatus}
           />
         </View>
       </View>
       <View style={styles.itemInfoContainer}>
-        <Text style={styles.itemTitle}>{task.title}</Text>
-        <Text style={styles.location}>
-          <LocationIcon />
-          {task.location}
-        </Text>
-        <View style={styles.controlsContainer}>
-          <TouchableOpacity style={styles.controlItem} onPress={() => handleDeleteTask()}>
-            <DeleteIcon fill={COLORS.primaryViolent} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.controlItem} onPress={() => handleEditTask()}>
-            <EditIcon fill={COLORS.primaryViolent} />
-          </TouchableOpacity>
-        </View>
+        <Text
+          style={[styles.itemTitle, { textDecorationLine: isCompleted ? "line-through" : "none" }]}>{task.title}</Text>
+
+        {!isCompleted && task.location && (
+          <Text style={styles.location}>
+            <LocationIcon />
+            {task.location.formattedAddress}
+          </Text>
+        )}
+
+        {!isCompleted && (
+          <View style={styles.controlsContainer}>
+            <TouchableOpacity style={styles.controlItem} onPress={() => handleDeleteTask()}>
+              <DeleteIcon fill={COLORS.primaryViolent} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.controlItem} onPress={() => handleEditTask()}>
+              <EditIcon fill={COLORS.primaryViolent} />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   );

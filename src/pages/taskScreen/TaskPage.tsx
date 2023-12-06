@@ -1,50 +1,68 @@
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image, Pressable,
-  SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View
 } from "react-native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import Checkbox from "expo-checkbox";
+import storage from "@react-native-firebase/storage";
+import { showMessage } from "react-native-flash-message";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { ImageLibraryOptions, launchImageLibrary } from "react-native-image-picker";
+import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
+
+
 import { Toolbar } from "@components/toolbar";
 import { ArrowRight, TaskImage } from "@constants/icons-svg";
 import styles from "./taskPage.styles";
 import Button from "@components/Button/Button";
 
-import Input from "@components/Input/Input";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import Checkbox from "expo-checkbox";
-import { taskTypes } from "@constants/taskTypes";
-import { TasksPriorityColor } from "@constants/TasksPriorityColor";
+import { taskPriorityColors, TaskPriorityTypes } from "@constants/TasksPriorityColor";
 import { COLORS } from "@constants/theme";
-import storage from "@react-native-firebase/storage";
-import ImagePicker, { ImageLibraryOptions, launchImageLibrary } from "react-native-image-picker";
-import { check, PERMISSIONS } from "react-native-permissions";
-import firestore from "@react-native-firebase/firestore";
-import { useSelector } from "react-redux";
-import { selectUserInfo } from "../../store/reducers/userSlice";
-import TaskService from "../../services/task.service";
-import { TaskModel } from "../../models/task.model";
-import { Routes } from "../../router/routes";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUserInfo } from "@store/reducers/userSlice";
+import TaskService from "@services/task.service";
+import { Routes } from "@router/routes";
+import { AppDispatch } from "@store/store";
+import { addTaskAsync, editTaskAsync } from "@store/reducers/tasksReducer/thunks";
+import MapPicker from "./mapPicker/MapPicker";
+import useCurrentLocation from "@hooks/useCurrentLocation";
+import { showConfirmAlert } from "../../helpers/showConfirmAlert";
+import LocationService from "@services/location.service";
+import { LocationType } from "../../types/taskTypes";
+import { replaceUndefinedWithNull } from "../../helpers/replaceUndefinedWithNull";
+import { TabParamList } from "@router/router.types";
+import { LatLng } from "react-native-maps/lib/sharedTypes";
 
-// @TODO add RootStackParamList to typing routes
+type TaskPageRouterType = {
+  params: {
+    taskId: string;
+  }
+}
+
 export const TaskPage = () => {
 
+
   const [imageUri, setImageUri] = useState<string>("");
-  const [selectedType, setSelectedType] = useState<keyof typeof TasksPriorityColor | null>(null);
+  const [selectedType, setSelectedType] = useState<TaskPriorityTypes | null>(null);
   const [taskName, setTaskName] = useState<string>("");
   const [imageLoading, setImageLoading] = useState<boolean>(false);
   const [taskLoading, setTaskLoading] = useState<boolean>(false);
-  // @TODO  add location picker
-  const [location, setLocation] = useState<boolean>(false);
+  const [bottomSheetVisible, setBottomSheetVisible] = useState<boolean>(false);
+  const [selectedLocation, setSelectedLocation] = useState<LatLng | null>(null);
+
+  const [taskLocation, setTaskLocation] = useState<LocationType | null>(null);
 
   const userInfo = useSelector(selectUserInfo);
 
-  const route = useRoute();
+  const route = useRoute<RouteProp<TaskPageRouterType>>();
+  const dispatch = useDispatch<AppDispatch>();
+  const navigation = useNavigation<StackNavigationProp<TabParamList>>();
+  const { location } = useCurrentLocation();
 
   const taskId = route?.params?.taskId;
 
@@ -52,13 +70,13 @@ export const TaskPage = () => {
     const fetchTaskData = async () => {
       try {
         if (taskId) {
-          const task = await TaskService.getTaskById(route.params.taskId);
+          const task = await TaskService.getTaskById(taskId);
 
           if (task) {
             setImageUri(task.image_url || "");
             setTaskName(task.title || "");
             setSelectedType(task.type || null);
-            setLocation(task.location || false);
+            setSelectedLocation(task.location || null);
           }
         }
       } catch (error) {
@@ -69,15 +87,48 @@ export const TaskPage = () => {
     fetchTaskData();
   }, [taskId]);
 
+  const handleMapPress = (e: any) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    setSelectedLocation({ latitude, longitude });
+    setTimeout(() => {
+      showConfirmAlert(
+        {
+          title: "Confirm location", message: "Do you confirm the choice of location?",
+          okHandler: () => handleLocationConfirm(latitude, longitude)
+        });
+    }, 500);
+  };
 
-  const navigation = useNavigation();
+  const handleLocationConfirm = async (latitude: number, longitude: number) => {
+    setBottomSheetVisible(false);
+    const locationName = replaceUndefinedWithNull(await LocationService.getLocationByCoordinates(latitude, longitude));
+    setTaskLocation(locationName);
+  };
 
-  const handleTypePress = (type: keyof typeof TasksPriorityColor) => {
+  const handleCloseMapPickerModal = () => {
+    setBottomSheetVisible(false);
+  };
+
+  const handleTypePress = (type: TaskPriorityTypes) => {
     setSelectedType(type === selectedType ? null : type);
   };
+
   const openImagePicker = async () => {
 
-    if (!await check(PERMISSIONS.IOS.CAMERA)) return;
+    const cameraPermissionStatus = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
+
+    if (cameraPermissionStatus === RESULTS.DENIED) {
+      const permissionRequestResult = await request(PERMISSIONS.IOS.PHOTO_LIBRARY);
+      if (permissionRequestResult !== RESULTS.GRANTED) {
+        showMessage({
+          message: "Camera permission denied. Please Try again",
+          icon: "auto",
+          type: "danger"
+        });
+        console.log("Camera permission denied.");
+        return;
+      }
+    }
 
     const options = {
       mediaType: "photo",
@@ -85,6 +136,7 @@ export const TaskPage = () => {
     };
 
     const result = await launchImageLibrary(options as ImageLibraryOptions);
+
 
     if (result.errorCode) {
       console.log("Image picker cancelled:", result.errorMessage);
@@ -107,6 +159,11 @@ export const TaskPage = () => {
 
       setImageUri(downloadURL);
     } catch (error) {
+      showMessage({
+        message: "Error loading image",
+        icon: "auto",
+        type: "danger"
+      });
       console.error("Error uploading image:", error);
     } finally {
       setImageLoading(false);
@@ -114,33 +171,34 @@ export const TaskPage = () => {
   };
 
   const onSubmitTask = async () => {
+
     if (!taskName || !selectedType) return;
 
     setTaskLoading(true);
+
     try {
-      const newTask = {
+      const updatedTask = {
         image_url: imageUri,
         done: false,
         created_at: String(new Date().getTime()),
         title: taskName,
         type: selectedType,
         user_id: userInfo?.id as string,
-        location: location
+        location: taskLocation
       };
-
+      console.log(taskLocation);
       if (taskId) {
-        await TaskService.editTaskById(taskId, newTask);
-        navigation.navigate(Routes.TASKS_LIST as never);
-      } else {
-        const response = await TaskService.addTask(newTask);
+        dispatch(editTaskAsync({ taskId, updatedTask }));
 
-        if (response) {
-          setImageUri("");
-          setTaskName("");
-          setSelectedType(null);
-          setLocation(false);
-        }
+        showMessage({
+          message: `Task "${updatedTask.title}" successfully updated`,
+          icon: "auto",
+          type: "success"
+        });
+      } else {
+        dispatch(addTaskAsync(updatedTask));
       }
+      navigation.navigate(Routes.TASKS_LIST);
     } catch (e) {
       console.log(e);
     } finally {
@@ -190,37 +248,51 @@ export const TaskPage = () => {
               setTaskName(text);
             }} />
           </View>
-          <TouchableOpacity style={styles.locationContainer}
-                            onPress={() => setLocation((prevLocation => !prevLocation))}>
-            <Checkbox style={styles.locationCheckbox} value={location} />
-            <Text style={styles.locationTitle}>
-              Add location
-            </Text>
-          </TouchableOpacity>
+
+          <View style={styles.locationContainer}>
+            <Text style={styles.typeTitle}>Event location</Text>
+            <Button onPress={() => setBottomSheetVisible(true)} containerStyle={styles.locationBtn}>
+              <Text style={styles.locationBtnText}>Add location</Text>
+            </Button>
+            {taskLocation && (
+              <Text style={styles.locationTitle}>{taskLocation.formattedAddress}</Text>
+            )}
+            <MapPicker
+              visible={bottomSheetVisible}
+              userLocation={location}
+              selectedLocation={selectedLocation}
+              onMapPress={handleMapPress}
+              onClose={handleCloseMapPickerModal}
+            />
+          </View>
+
           <View style={styles.typeContainer}>
             <Text style={styles.typeTitle}>Type</Text>
             <View style={styles.taskTypes}>
-              {Object.keys(TasksPriorityColor).map((type, index) => (
-                <TouchableOpacity
-                  style={styles.taskTypesItem}
-                  key={index}
-                  onPress={() => handleTypePress(type)}
-                >
-                  <View
-                    style={[
-                      styles.taskTypesMark,
-                      { backgroundColor: TasksPriorityColor[type] }
-                    ]}
-                  />
-                  <Checkbox
-                    color={selectedType === type ? COLORS.primaryViolent : undefined}
-                    style={styles.taskTypesCheckbox}
-                    value={selectedType === type}
-                    onValueChange={() => handleTypePress(type)}
-                  />
-                  <Text style={styles.taskTypeName}> {type}</Text>
-                </TouchableOpacity>
-              ))}
+              {Object.keys(taskPriorityColors).map((type, index) => {
+                const eventType = type as TaskPriorityTypes;
+                return (
+                  <TouchableOpacity
+                    style={styles.taskTypesItem}
+                    key={index}
+                    onPress={() => handleTypePress(eventType)}
+                  >
+                    <View
+                      style={[
+                        styles.taskTypesMark,
+                        { backgroundColor: taskPriorityColors[eventType] }
+                      ]}
+                    />
+                    <Checkbox
+                      color={selectedType === eventType ? COLORS.primaryViolent : undefined}
+                      style={styles.taskTypesCheckbox}
+                      value={selectedType === eventType}
+                      onValueChange={() => handleTypePress(eventType)}
+                    />
+                    <Text style={styles.taskTypeName}> {type}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
           <Button disabled={imageLoading || taskLoading} containerStyle={styles.taskSubmitBtn}

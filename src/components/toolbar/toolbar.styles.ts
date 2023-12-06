@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.primaryViolent,
         borderBottomEndRadius: BORDER_RADIUS.toolbar,
         borderBottomStartRadius: BORDER_RADIUS.toolbar,
+        zIndex: 999
     }
 });
 
