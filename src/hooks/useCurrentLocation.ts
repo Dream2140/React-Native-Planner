@@ -14,7 +14,14 @@ const defaultOptions: UseCurrentLocationProps = {
   maximumAge: 10000
 };
 
-const useCurrentLocation = (options: UseCurrentLocationProps = defaultOptions) => {
+const defaultLocation: LatLng = {
+  latitude: 48.10894636494346,
+  longitude: 32.78131730028924
+};
+
+const useCurrentLocation = (
+  options: UseCurrentLocationProps = defaultOptions
+) => {
   const [location, setLocation] = useState<LatLng | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,10 +33,14 @@ const useCurrentLocation = (options: UseCurrentLocationProps = defaultOptions) =
         const watchId = Geolocation.watchPosition(
           (position: GeolocationResponse) => {
             if (isMounted) {
-              setLocation({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-              });
+              if (!position) {
+                setLocation(defaultLocation);
+              } else {
+                setLocation({
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude
+                });
+              }
             }
           },
           (error) => {
@@ -45,9 +56,7 @@ const useCurrentLocation = (options: UseCurrentLocationProps = defaultOptions) =
         );
 
         return () => {
-          if (isMounted) {
-            Geolocation.clearWatch(watchId);
-          }
+          Geolocation.clearWatch(watchId);
         };
       } catch (error: any) {
         if (isMounted) {
@@ -62,6 +71,7 @@ const useCurrentLocation = (options: UseCurrentLocationProps = defaultOptions) =
       isMounted = false;
     };
   }, [options]);
+
 
   return { location, error };
 };

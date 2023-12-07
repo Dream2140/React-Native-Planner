@@ -10,10 +10,10 @@ import Input from "@components/Input/Input";
 import { appLogo } from "@constants/icons";
 import Button from "@components/Button/Button";
 import auth from "@react-native-firebase/auth";
-import { COLORS } from "@constants/theme";
+import { COLORS } from "@constants/globalStyles";
 
 
-const WelcomeScreen = () => {
+const AuthScreen = () => {
   const [isSignUp, setIsSignUp] = useState<boolean>(false);
   const [error, setError] = useState<string | false>(false);
   const [email, setEmail] = useState<string>("");
@@ -150,4 +150,4 @@ const WelcomeScreen = () => {
   );
 };
 
-export default WelcomeScreen;
+export default AuthScreen;

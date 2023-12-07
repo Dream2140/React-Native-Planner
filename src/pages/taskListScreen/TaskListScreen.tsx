@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ActivityIndicator, Animated, FlatList, PanResponder, Text, View } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 import { Toolbar } from "@components/toolbar";
 import { Filters } from "./Filters";
@@ -23,7 +24,6 @@ import { getTaskCountForUserAsync, getTaskListWithParamsAsync } from "@store/red
 import { selectUserInfo } from "@store/reducers/userSlice";
 import { FilterType } from "../../types/filterType";
 import { TASK_FILTERS } from "@constants/filters";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "@router/router.types";
 
 import styles from "./taskListScreen.styles";
@@ -105,7 +105,7 @@ export const TaskListScreen = () => {
           </Button>
         </View>
         <View style={styles.headerBottom}>
-          <Text style={styles.titleText}>You have{"\n"}{taskCount} tasks here</Text>
+          <Text style={styles.titleText}>You have{"\n"}{taskCount} unfinished tasks</Text>
         </View>
       </Toolbar>
       <Animated.View style={styles.swipeContainer}   {...swipeListHandler.panHandlers}>
@@ -119,7 +119,7 @@ export const TaskListScreen = () => {
               (<Text> No {filter === "Active" && "active"} tasks yet</Text>)
               : (<FlatList
                 data={tasks}
-                keyExtractor={(item) => item.created_at}
+                keyExtractor={(item) => String(item.created_at)}
                 renderItem={({ item }) => <TaskItem {...item as TaskItemProps} />}
                 onEndReached={fetchTasks}
                 onEndReachedThreshold={0.1}

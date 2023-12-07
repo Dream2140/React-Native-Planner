@@ -14,7 +14,7 @@ import { showMessage } from "react-native-flash-message";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { ImageLibraryOptions, launchImageLibrary } from "react-native-image-picker";
 import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
-
+import { LatLng } from "react-native-maps/lib/sharedTypes";
 
 import { Toolbar } from "@components/toolbar";
 import { ArrowRight, TaskImage } from "@constants/icons-svg";
@@ -22,7 +22,7 @@ import styles from "./taskPage.styles";
 import Button from "@components/Button/Button";
 
 import { taskPriorityColors, TaskPriorityTypes } from "@constants/TasksPriorityColor";
-import { COLORS } from "@constants/theme";
+import { COLORS } from "@constants/globalStyles";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserInfo } from "@store/reducers/userSlice";
 import TaskService from "@services/task.service";
@@ -36,7 +36,7 @@ import LocationService from "@services/location.service";
 import { LocationType } from "../../types/taskTypes";
 import { replaceUndefinedWithNull } from "../../helpers/replaceUndefinedWithNull";
 import { TabParamList } from "@router/router.types";
-import { LatLng } from "react-native-maps/lib/sharedTypes";
+import { TaskModel } from "@models/task.model";
 
 type TaskPageRouterType = {
   params: {
@@ -65,6 +65,7 @@ export const TaskPage = () => {
   const { location } = useCurrentLocation();
 
   const taskId = route?.params?.taskId;
+
 
   useEffect(() => {
     const fetchTaskData = async () => {
@@ -177,16 +178,17 @@ export const TaskPage = () => {
     setTaskLoading(true);
 
     try {
-      const updatedTask = {
+      const updatedTask: TaskModel = {
         image_url: imageUri,
         done: false,
-        created_at: String(new Date().getTime()),
+        created_at: Number(new Date().getTime()),
         title: taskName,
         type: selectedType,
         user_id: userInfo?.id as string,
-        location: taskLocation
+        location: taskLocation,
+        completed_at: null
       };
-      console.log(taskLocation);
+
       if (taskId) {
         dispatch(editTaskAsync({ taskId, updatedTask }));
 

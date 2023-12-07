@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-import { COLORS, FONT_SIZE, FONTS } from "@constants/theme";
+import { COLORS, FONT_SIZE, FONTS } from "@constants/globalStyles";
 
 const styles = StyleSheet.create({
   messageContainer: {

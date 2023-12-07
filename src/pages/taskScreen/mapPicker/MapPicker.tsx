@@ -5,6 +5,7 @@ import MapView, { Marker } from "react-native-maps";
 
 import styles from "./mapPicker.styles";
 import { LatLng } from "react-native-maps/lib/sharedTypes";
+import { MapPin } from "@constants/icons-svg";
 
 interface MapPickerComponentProps {
   visible: boolean;
@@ -64,7 +65,9 @@ const MapPicker: React.FC<MapPickerComponentProps> = ({
           <Marker
             coordinate={{ latitude: selectedLocation.latitude, longitude: selectedLocation.longitude }}
             title="Chosen location"
-          />
+          >
+            <MapPin width={28} height={35} />
+          </Marker>
         )}
       </MapView>
 

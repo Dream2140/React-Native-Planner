@@ -34,9 +34,9 @@ class TaskService {
         .orderBy("created_at", "desc")
         .limit(pageSize);
 
-      if (filter !== 'All') {
-        const doneValue = filter === 'Completed';
-        query = query.where('done', '==', doneValue);
+      if (filter !== "All") {
+        const doneValue = filter === "Completed";
+        query = query.where("done", "==", doneValue);
       }
 
       if (startAfter) {
@@ -93,7 +93,10 @@ class TaskService {
 
   async getTaskCountForUser(userId: string): Promise<number> {
     try {
-      const querySnapshot = await this.collectionRef.where("user_id", "==", userId).get();
+      const querySnapshot = await this.collectionRef
+        .where("user_id", "==", userId)
+        .where("done", "==", false)
+        .get();
 
       return querySnapshot.size;
 
@@ -101,7 +104,33 @@ class TaskService {
       console.error("Error fetching tasks:", error);
       throw error;
     }
-  };
+  }
+
+  async getTasksByDateRange(userId: string, startDate: number, endDate: number): Promise<TaskModel[]> {
+    try {
+
+      const query = this.collectionRef
+        .where("user_id", "==", userId)
+        .where("done", "==", true)
+        .where("completed_at", ">=", startDate)
+        .where("completed_at", "<=", endDate)
+        .orderBy("completed_at", "desc");
+
+
+      const snapshot = await query.get();
+      const tasks: TaskModel[] = [];
+
+      snapshot.forEach((doc) => {
+        tasks.push({ id: doc.id, ...doc.data() } as TaskModel);
+      });
+
+      return tasks;
+    } catch (error) {
+      console.error("Error getting tasks by date range:", error);
+      throw error;
+    }
+  }
+
 }
 
 export default new TaskService();

@@ -1,5 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
 import { Routes } from "./routes";
 import {
   BarGenerate,
@@ -9,10 +10,10 @@ import {
   BarMyTasks,
   BarMyTasksActive
 } from "@constants/icons-svg";
-import { COLORS } from "@constants/theme";
+import { COLORS } from "@constants/globalStyles";
 import { TaskListScreen } from "../pages/taskListScreen";
 import MapPage from "../pages/mapScreen/MapPage";
-import { Chart } from "../pages/Chart";
+import { ChartPage } from "../pages/chartPage";
 
 const Tab = createBottomTabNavigator();
 
@@ -41,7 +42,7 @@ const TabRouter = () => {
       />
       <Tab.Screen
         name={Routes.CHARTS}
-        component={Chart}
+        component={ChartPage}
         options={{
           tabBarIcon: ({ focused }) => (
             focused ? <BarGenerateActive /> : <BarGenerate />

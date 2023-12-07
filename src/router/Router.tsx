@@ -6,14 +6,13 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TabRouter from "./TabRouter";
 import ScreensRouter from "./ScreensRouter";
 import { selectUserInfo } from "@store/reducers/userSlice";
-import WelcomeScreen from "../pages/WelcomeScreen/WelcomeScreen";
+import AuthScreen from "../pages/authScreen/AuthScreen";
 import { Routes } from "./routes";
 
 const RootStack = createNativeStackNavigator();
 const Router = () => {
 
   const isUserLoggedIn = useSelector(selectUserInfo);
-  console.log(isUserLoggedIn);
 
   return (
     <NavigationContainer>
@@ -24,7 +23,7 @@ const Router = () => {
               <RootStack.Screen name="Screens" component={ScreensRouter} />
             </>
           ) : (
-            <RootStack.Screen name={Routes.AUTH} component={WelcomeScreen} />
+            <RootStack.Screen name={Routes.AUTH} component={AuthScreen} />
           )}
         </RootStack.Navigator>
     </NavigationContainer>

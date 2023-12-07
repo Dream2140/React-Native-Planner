@@ -6,7 +6,7 @@ import { showMessage } from "react-native-flash-message";
 import { useDispatch } from "react-redux";
 
 import { DeleteIcon, EditIcon, LocationIcon } from "@constants/icons-svg";
-import { COLORS } from "@constants/theme";
+import { COLORS } from "@constants/globalStyles";
 import { TaskModel } from "@models/task.model";
 import { Routes } from "@router/routes";
 import { deleteTaskByIdAsync, editTaskAsync } from "@store/reducers/tasksReducer/thunks";
@@ -28,7 +28,12 @@ export const TaskItem: React.FC<TaskItemProps> = (task) => {
   const isCompleted = task.done;
 
   const handleTaskDoneStatus = async () => {
-    dispatch(editTaskAsync({ taskId: task.id, updatedTask: { ...task, done: !task.done } }));
+    const completed_at = task.done ? null : Number(new Date().getTime());
+
+    dispatch(editTaskAsync({
+      taskId: task.id,
+      updatedTask: { ...task, done: !task.done, completed_at }
+    }));
 
     showMessage({
       message: `Done status of "${task.title}" changed`,
@@ -36,7 +41,6 @@ export const TaskItem: React.FC<TaskItemProps> = (task) => {
       type: "success"
     });
   };
-
 
   const handleDeleteTask = async () => {
     Alert.alert(

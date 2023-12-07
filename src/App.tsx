@@ -8,7 +8,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import InternetCheck from "@components/InternetCheck/InternetCheck";
 import { persistor, store } from "@store/store";
-import { COLORS } from "@constants/theme";
+import { COLORS } from "@constants/globalStyles";
 import Router from "./router/Router";
 
 export default function App() {
