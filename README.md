@@ -75,3 +75,36 @@ Technologies used in the project:
 *   Typescript
 *   Firebase
 *   Redux toolkit
+
+## Installation
+
+Follow these steps to get the React Native Planner App up and running on your device:
+
+### Prerequisites
+
+Before you begin, ensure that you have the following tools installed on your machine:
+
+- [Node.js](https://nodejs.org/)
+- [npm](https://www.npmjs.com/) (Node Package Manager)
+- [React Native CLI](https://reactnative.dev/docs/environment-setup) (Command Line Interface)
+
+### Steps
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/react-native-planner-app.git
+2. **Navigate to the project directory:**
+   ```bash
+   cd react-native-planner-app
+3. **Install dependencies:**
+   ```bash
+   npm install
+4. **Run the application::**
+   * For iOS:
+   ```bash
+   npx react-native run-ios
+  * For Android:
+   ```bash
+   npx react-native run-android
+  
+
