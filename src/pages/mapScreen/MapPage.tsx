@@ -82,7 +82,6 @@ const MapPage = () => {
               longitude: task.location?.longitude || 0
             }}
             title={task.title}
-            description={task.type}
             onPress={() => clickOnTaskHandler(task)}
           >
             <MapPin width={28} height={35} />

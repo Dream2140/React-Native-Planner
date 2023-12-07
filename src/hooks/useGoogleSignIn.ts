@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
 import auth from "@react-native-firebase/auth";
+import { GOOGLE_API } from "@env";
 
 type AuthSuccess = {
   // @ts-ignore
@@ -15,7 +16,7 @@ const useGoogleSignIn = () => {
   useEffect(() => {
 
     GoogleSignin.configure({
-      webClientId: "208811721128-1cog5gd0mhl8gsok6dlfcl2bt9mnnp8j.apps.googleusercontent.com"
+      webClientId: GOOGLE_API
     });
   }, []);
 

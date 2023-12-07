@@ -55,7 +55,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>{task.title}123</Text>
+        <Text style={styles.title}>{task.title}</Text>
         <Pressable onPress={onClose}>
           <CloseIcon style={styles.closeIcon} width={22} height={22} />
         </Pressable>

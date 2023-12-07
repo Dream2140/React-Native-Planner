@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ActivityIndicator, Animated, FlatList, PanResponder, Text, View } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -83,14 +83,11 @@ export const TaskListScreen = () => {
     dispatch(setFilter(activeFilter));
   };
 
-  useEffect(() => {
-    dispatch(getTaskCountForUserAsync(userInfo?.id as string));
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
       dispatch(resetTaskState());
       dispatch(getTaskListWithParamsAsync(COUNT_OF_TASKS));
+      dispatch(getTaskCountForUserAsync(userInfo?.id as string));
     }, [filter])
   );
 

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { LocationType } from "../types/taskTypes";
+import { OPEN_CAGE_API } from "@env";
 
 interface OpenCageApiResponse {
   results: Array<{
@@ -17,7 +18,7 @@ interface OpenCageApiResponse {
   }>;
 }
 
-const API_KEY = 'b3161ab34299469583fa06dac91a3cc8';
+const API_KEY = OPEN_CAGE_API;
 class LocationService{
   private apiKey: string;
 

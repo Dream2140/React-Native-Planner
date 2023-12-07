@@ -85,7 +85,7 @@ export const TaskItem: React.FC<TaskItemProps> = (task) => {
 
         {!isCompleted && task.location && (
           <Text style={styles.location}>
-            <LocationIcon />
+            <LocationIcon style={{ marginRight: 8 }} />
             {task.location.formattedAddress}
           </Text>
         )}
