@@ -1,79 +1,77 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+<h1 align="center" id="title">React Native Planner App</h1>
 
-# Getting Started
+<p align="center"><img src="images/logo.png" alt="project-image" width="100" height="100"></p>
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+<p id="description">The React Native Planner App is a versatile and intuitive mobile application designed to enhance your task management experience. With a primary focus on providing users with a seamless way to organize their tasks, this app goes beyond the standard planner by incorporating advanced features, including geolocation integration.
+</p>
 
-## Step 1: Start the Metro Server
+<h2>Project Screenshots:</h2>
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+<h3>User Auth page</h3>
+<p>To auth, user can use email or google auth, users data stors on firebase</p>
+<details>
+  <summary>User Auth page screen</summary>
+<img src="images/9.jpg" alt="project-screenshot">
+</details>
+<h3>Task list page</h3>
+<p>Page with all user tasks. User can filter task list by ready statys</p>
+<details>
+  <summary>Task list page screen</summary>
+<img src="images/1.jpg" alt="project-screenshot">
+   <img src="images/2.jpg" alt="project-screenshot">
+   <img src="images/8.jpg" alt="project-screenshot" width="400">
+</details>
+<h3>Map page</h3>
+<p>Map page. Markers with tasks are on the map. When you click on a task, displaing task info.</p>
+<details>
+  <summary>Map page screen</summary>
+<img src="images/3.jpg" alt="project-screenshot">
+<img src="images/4.jpg" alt="project-screenshot">
+<img src="images/5.jpg" alt="project-screenshot">
+</details>
+<h3>Add task page</h3>
+<p>On the page, add a task, the user creates task, the task type and name fields are required. The user can also add an image from the gallery. The user can also select the task location on the map</p>
+<details>
+  <summary>Add task page screen</summary>
+   <img src="images/7.jpg" alt="project-screenshot" >
+</details>
 
-To start Metro, run the following command from the _root_ of your React Native project:
+<h3>Chart page</h3>
+<p>Chart page, weekly, monthly and yearly statistic</p>
+<details>
+  <summary>Chart page screen</summary>
+    <img src="images/6.jpg" alt="project-screenshot">
+</details>  
+  
+<h2>🧐 Features</h2>
 
-```bash
-# using npm
-npm start
+Here're some of the project's best features:
 
-# OR using Yarn
-yarn start
-```
+### Geolocation Integration
+The app enables users to attach geolocation information to their tasks, adding a spatial context to their schedules. This feature is particularly useful for tasks that are location-dependent, allowing users to efficiently plan their activities based on their physical surroundings.
 
-## Step 2: Start your Application
+### User Authentication
+Ensuring the security and privacy of user data is paramount. The app incorporates a robust user authentication system, allowing users to log in using either their email or Google credentials. User data is securely stored on Firebase, providing a reliable and scalable authentication solution.
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+### Task List Management
+The task list page provides an at-a-glance view of all user tasks. Users can easily filter and organize their tasks based on completion status, ensuring a clear overview of their ongoing and completed activities.
 
-### For Android
+### Interactive Map View
+The map page enhances task visualization by displaying markers corresponding to task locations. Users can interact with the map, clicking on markers to view detailed task information. This feature is especially beneficial for users with tasks spread across different locations.
 
-```bash
-# using npm
-npm run android
+### Effortless Task Creation
+Adding tasks is a breeze with the dedicated "Add Task" page. Users can specify task type and name (required fields), upload images from their gallery, and even select task locations directly on the map. This comprehensive approach to task creation caters to a variety of user preferences and needs.
 
-# OR using Yarn
-yarn android
-```
+### Statistical Insights with Charts
+The app goes beyond basic task tracking by offering insightful charts. Users can analyze their task completion trends on a weekly, monthly, and yearly basis, empowering them with data-driven insights into their productivity patterns.
 
-### For iOS
+  
+  
+<h2>💻 Built with</h2>
 
-```bash
-# using npm
-npm run ios
+Technologies used in the project:
 
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
-
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+*   React Native
+*   Typescript
+*   Firebase
+*   Redux toolkit
